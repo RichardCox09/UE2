@@ -1,9 +1,14 @@
 package trafficlight.ctrl;
 
+import trafficlight.gui.Observer;
+import trafficlight.gui.Subscriber;
 import trafficlight.gui.TrafficLightGui;
 import trafficlight.states.State;
 
-public class TrafficLightCtrl {
+import java.util.ArrayList;
+import java.util.List;
+
+public class TrafficLightCtrl implements Subscriber {
 
     private State greenState;
 
@@ -19,13 +24,23 @@ public class TrafficLightCtrl {
 
     private boolean doRun = true;
 
+    private List<Observer> listOfObserver = new ArrayList();
+
+    private static TrafficLightCtrl instance = null;
+
     public TrafficLightCtrl() {
         super();
         initStates();
         gui = new TrafficLightGui(this);
         gui.setVisible(true);
         //TODO useful to update the current state
-        //TrafficLightGui.update();
+        update();
+    }
+
+    public static TrafficLightCtrl getInstance(){
+        if(instance == null)
+            instance = new TrafficLightCtrl();
+        return instance;
     }
 
     private void initStates() {
@@ -34,8 +49,7 @@ public class TrafficLightCtrl {
             public State getNextState() {
                 previousState = currentState;
                 //TODO useful to update the current state and the old one
-                TrafficLightGui.update(previousState);
-                TrafficLightGui.update(currentState);
+                update();
                 return yellowState;
             }
             @Override
@@ -49,8 +63,7 @@ public class TrafficLightCtrl {
             public State getNextState() {
                 previousState = currentState;
                 //TODO useful to update the current state and the old one
-                TrafficLightGui.update(previousState);
-                TrafficLightGui.update(currentState);
+                update();
                 return yellowState;
             }
             @Override
@@ -65,14 +78,12 @@ public class TrafficLightCtrl {
                 if (previousState.equals(greenState)) {
                     previousState = currentState;
                     //TODO useful to update the current state and the old one
-                    TrafficLightGui.update(previousState);
-                    TrafficLightGui.update(currentState);
+                    update();
                     return redState;
                 }else {
                     previousState = currentState;
                     //TODO useful to update the current state and the old one
-                    TrafficLightGui.update(previousState);
-                    TrafficLightGui.update(currentState);
+                    update();
                     return greenState;
                 }
             }
@@ -117,5 +128,26 @@ public class TrafficLightCtrl {
 
     public void stop() {
         doRun = false;
+    }
+
+    @Override
+    public void addObserver(Observer observer){
+        listOfObserver.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer){
+        listOfObserver.remove(observer);
+    }
+
+    public void notifyObserver(){
+        for(Observer o : listOfObserver){
+            o.update(currentState);
+        }
+    }
+
+    @Override
+    public void update() {
+        notifyObserver();
     }
 }

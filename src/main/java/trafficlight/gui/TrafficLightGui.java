@@ -34,6 +34,19 @@ public class TrafficLightGui extends JFrame implements ActionListener, Observer 
         //TODO implement a part of the pattern here
         //create the TrafficLight
         //connect subject and observer
+
+        green = new TrafficLight(Color.green);
+        yellow = new TrafficLight(Color.yellow);
+        red = new TrafficLight(Color.red);
+
+        green.turnOn(true);
+
+        trafficLightCtrl.addObserver(new Observer() {
+            @Override
+            public void update(State state) {
+                changeLights(state.getColor());
+            }
+        });
     }
 
     private void init() {
@@ -72,8 +85,12 @@ public class TrafficLightGui extends JFrame implements ActionListener, Observer 
 
 
     @Override
-    public void update(State state){
-        switch (state.getColor()){
+    public void update(State state) {
+        changeLights(state.getColor());
+    }
+
+    public void changeLights(String color){
+        switch (color){
             case "green":
                 green.turnOn(true);
                 yellow.turnOn(false);
@@ -91,5 +108,17 @@ public class TrafficLightGui extends JFrame implements ActionListener, Observer 
                 red.turnOn(true);
                 break;
         }
+    }
+
+    public boolean greenIsOn(){
+        return green.isOn;
+    }
+
+    public boolean yellowIsOn(){
+        return yellow.isOn;
+    }
+
+    public boolean redIsOn(){
+        return red.isOn;
     }
 }
